@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GovMem V1 — Governance-Aware Adaptive Memory</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Governance-Aware Adaptive Memory <small>Version 1 prototype</small></h1>
+  <div id="health" class="muted">connecting…</div>
+</header>
+<p class="banner">Frozen LLM + external adaptive memory. External policy is authoritative; memory can only escalate Allow→Review. Demo data is synthetic.</p>
+
+<section class="cards">
+  <div class="card"><div class="k">Active patterns</div><div class="v" id="s-count">–</div></div>
+  <div class="card"><div class="k">Pattern bytes / budget</div><div class="v" id="s-bytes">–</div><div class="bar"><div id="s-bar"></div></div></div>
+  <div class="card"><div class="k">Record size</div><div class="v" id="s-rec">–</div></div>
+  <div class="card"><div class="k">Quarantine</div><div class="v" id="s-q">–</div></div>
+  <div class="card"><div class="k">Episodes (raw bytes)</div><div class="v" id="s-epi">–</div></div>
+  <div class="card"><div class="k">Audit chain</div><div class="v" id="s-audit">–</div></div>
+</section>
+
+<section class="row">
+  <div class="panel">
+    <h2>Decide <small>G(u,a,r,c,p)</small></h2>
+    <form id="decide-form">
+      <label>user <input name="user_id" value="alice"></label>
+      <label>roles <input name="roles" value="analyst"></label>
+      <label>action <input name="action" value="transfer"></label>
+      <label>resource <input name="resource" value="payments/acct/7"></label>
+      <label>context JSON <input name="context" value='{"amount_band":"low","channel":"web"}'></label>
+      <label><input type="checkbox" name="observe"> also observe as event</label>
+      <button>Decide</button>
+    </form>
+    <pre id="decide-out" class="out"></pre>
+  </div>
+  <div class="panel">
+    <h2>Controls</h2>
+    <button id="btn-demo">Seed synthetic events</button>
+    <button id="btn-discover">Run discovery pass</button>
+    <button id="btn-consolidate">Consolidate (merge/forget)</button>
+    <label>reviewer id <input id="reviewer" value="rev-1"></label>
+    <pre id="ctl-out" class="out"></pre>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Pattern memory <small>(validated, used under governance)</small></h2>
+  <table><thead><tr><th>id</th><th>v</th><th>action</th><th>res</th><th>context</th><th>support</th><th>win</th>
+  <th>risk</th><th>ema</th><th>rel</th><th>use</th><th>bytes</th><th>feedback</th></tr></thead>
+  <tbody id="patterns"></tbody></table>
+</section>
+
+<section class="panel">
+  <h2>Quarantine queue <small>(never used in decisions)</small></h2>
+  <table><thead><tr><th>id</th><th>status</th><th>action</th><th>res</th><th>context</th><th>support</th><th>windows</th>
+  <th>sources</th><th>score</th><th>flags</th><th>review</th></tr></thead>
+  <tbody id="quarantine"></tbody></table>
+</section>
+
+<section class="row">
+  <div class="panel">
+    <h2>Recent decisions</h2>
+    <table><thead><tr><th>id</th><th>action</th><th>resource</th><th>base</th><th>final</th><th>pattern</th><th>risk</th><th>fb</th></tr></thead>
+    <tbody id="decisions"></tbody></table>
+  </div>
+  <div class="panel">
+    <h2>Memory change log <small>(audit)</small></h2>
+    <ul id="audit" class="log"></ul>
+  </div>
+</section>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+# API + DB + dashboard. SQLite lives on the shared `govmem-data` volume;
+# `db` initializes/migrates the schema and seeds default policies, then exits.
+services:
+  db:
+    build: .
+    command: ["python", "-m", "govmem.db"]
+    environment:
+      GOVMEM_DB_PATH: /data/govmem.db
+    volumes:
+      - govmem-data:/data
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_completed_successfully
+    environment:
+      GOVMEM_DB_PATH: /data/govmem.db
+      GOVMEM_BYTE_BUDGET: "4096"
+      GOVMEM_ENCODING: full            # or compact64
+      GOVMEM_LLM_BACKEND: mock         # set to http to use a real open-weight model
+      GOVMEM_LLM_URL: http://llm:8001/v1
+      GOVMEM_LLM_MODEL: Qwen/Qwen2.5-7B-Instruct
+    volumes:
+      - govmem-data:/data
+    ports:
+      - "8000:8000"
+
+  dashboard:
+    image: nginx:1.27-alpine
+    depends_on:
+      - api
+    volumes:
+      - ./src/govmem/dashboard/static:/usr/share/nginx/html:ro
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:80"
+
+  # Optional real frozen LLM (GPU required). Start with: docker compose --profile llm up
+  llm:
+    profiles: ["llm"]
+    image: vllm/vllm-openai:latest
+    command: ["--model", "Qwen/Qwen2.5-7B-Instruct", "--port", "8001"]
+    ports:
+      - "8001:8001"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+volumes:
+  govmem-data:
